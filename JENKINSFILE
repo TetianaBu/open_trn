@@ -68,6 +68,8 @@ pipeline {
                         git config user.name "ci-bot"
                         git config user.email "ci-bot@example.com"
 
+                        git fetch origin ${TARGET_BRANCH}
+
                         git checkout ${TARGET_BRANCH}
                         git pull https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git ${TARGET_BRANCH}
 
