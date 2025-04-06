@@ -14,7 +14,7 @@ def get_db_connection():
         f'UID={uid};'
         f'PWD={pwd}'
     )
+    print(conn)
     return conn
 
-print(conn)
 get_db_connection()
