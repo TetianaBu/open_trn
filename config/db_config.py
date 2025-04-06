@@ -16,5 +16,5 @@ def get_db_connection():
     )
     return conn
 
-print(get_db_connection())
+print(conn)
 get_db_connection()
