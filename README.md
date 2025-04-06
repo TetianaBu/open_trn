@@ -7,9 +7,9 @@ Before you start, ensure the following:
 
 2. Ensure TRN Database is set up and SQL Server is installed and running
 
-3. Run Docker with provided file
-docker build -t trn-jenkins .
-docker run -d -p 8080:8080 trn-jenkins
+3. Run Docker with provided file \n
+docker build -t docker_jenkins .  \n
+docker run -d -p 8080:8080 docker_jenkins 
 
 4. Verify Docker Image is Running
 Ensure that your Docker container is running and accessible. You can check this by opening your browser and navigating to http://localhost:8080.
