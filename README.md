@@ -1,34 +1,34 @@
-#TRN Jenkins CI/CD Setup Guide
+# TRN Jenkins CI/CD Setup Guide
 
 Prerequisites
 Before you start, ensure the following:
 
-##1. Install Docker
+## 1. Install Docker
 
-##2. Ensure TRN Database is set up and SQL Server is installed and running
+## 2. Ensure TRN Database is set up and SQL Server is installed and running
 
-##3. Run Docker with provided file
+## 3. Run Docker with provided file
 ```
 docker build -t docker_jenkins .
 docker run -d -p 8080:8080 docker_jenkins
 ```
 
-###5. Verify Docker Image is Running
+### 5. Verify Docker Image is Running
 Ensure that your Docker container is running and accessible. You can check this by opening your browser and navigating to http://localhost:8080.
 
-###6. Login to Jenkins
+### 6. Login to Jenkins
 Open Jenkins in your browser
 
-###7. Set Up Jenkins Environment Variables
+### 7. Set Up Jenkins Environment Variables
 In Jenkins, make sure the following environment variables are configured for use in your pipelines:
 ```
 DB_SERVER: The server address of your SQL Server instance
 DB_USER: The username for the database 
 DB_PASSWORD: The password for the database 
 ```
-###7. Get and add credentials to the git repo to be able to post. 
+### 7. Get and add credentials to the git repo to be able to post. 
 
-###8. Follow branching strategy while adding changess:
+### 8. Follow branching strategy while adding changess:
 
 - main: Stable production releases.
 - develop: Ongoing development (features are merged here).
