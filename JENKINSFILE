@@ -70,7 +70,7 @@ pipeline {
 
                         git fetch origin ${TARGET_BRANCH}
 
-                        git checkout ${TARGET_BRANCH}
+                        git switch ${TARGET_BRANCH}
                         git pull https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git ${TARGET_BRANCH}
 
                         git merge --no-ff ${BRANCH_NAME} -m "Auto-merged ${BRANCH_NAME} into ${TARGET_BRANCH}"
