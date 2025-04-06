@@ -21,6 +21,7 @@ Open Jenkins in your browser
 
 ### 7. Set Up Jenkins Environment Variables
 In Jenkins, make sure the following environment variables are configured for use in your pipelines:
+
 ```
 DB_SERVER: The server address of your SQL Server instance
 DB_USER: The username for the database 
