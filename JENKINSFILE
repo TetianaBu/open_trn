@@ -1,0 +1,155 @@
+pipeline {
+    agent any
+
+    environment {
+        VENV_PATH = "/opt/venv"                       
+        GIT_CRED_ID = "trn_jen_cred_id"  // Credentials for  GitHub PAT (username/password)
+        TARGET_BRANCH = "develop"                      // Default target branch for auto merging bugfix branches.
+        REPO_URL = "https://github.com/TetianaBu/trn_jen.git" // Repository URL.
+    }
+
+    options {
+        skipStagesAfterUnstable()                      // Skip subsequent stages if one is unstable.
+        timestamps()                                   // Add timestamps to console output for debugging.
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo "Checking out code for branch: ${env.BRANCH_NAME}"
+                checkout scm // Uses the default SCM configuration for the branch.
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                echo "Running tests for branch: ${env.BRANCH_NAME}..."
+                withCredentials([
+                    string(credentialsId: 'DB_SERVER', variable: 'DB_SERVER'),
+                    string(credentialsId: 'DB_USER', variable: 'DB_USER'),
+                    string(credentialsId: 'DB_PASSWORD', variable: 'DB_PASSWORD')
+                ]) {
+                    sh '''
+                        . ${VENV_PATH}/bin/activate
+                        export PYTHONPATH=$PYTHONPATH:.
+
+                        # Here, we pass the DB credentials to pytest via environment variables
+                        export DB_SERVER=${DB_SERVER}
+                        export DB_USER=${DB_USER}
+                        export DB_PASSWORD=${DB_PASSWORD}
+
+                        pytest --html=report.html --self-contained-html
+                    '''
+                }
+            }
+            post {
+                always {
+                    echo "Publishing PyTest HTML report for branch: ${env.BRANCH_NAME}..."
+                    publishHTML([
+                        allowMissing: false,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: '.',
+                        reportFiles: 'report.html',
+                        reportName: "PyTest Report: ${env.BRANCH_NAME}"
+                    ])
+                }
+            }
+        }
+
+        stage('Auto Merge Bugfix Branch') {
+            when {
+                expression { env.BRANCH_NAME.startsWith("bugfix/") }
+            }
+            steps {
+                echo "Auto-merging bugfix branch ${env.BRANCH_NAME} into ${TARGET_BRANCH}..."
+                withCredentials([usernamePassword(credentialsId: env.GIT_CRED_ID, usernameVariable: 'TetianaBu', passwordVariable: 'GIT_TOKEN')]) {
+                    sh '''
+                        git config user.name "ci-bot"
+                        git config user.email "ci-bot@example.com"
+
+                        git checkout ${TARGET_BRANCH}
+                        git pull https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git ${TARGET_BRANCH}
+
+                        git merge --no-ff ${BRANCH_NAME} -m "Auto-merged ${BRANCH_NAME} into ${TARGET_BRANCH}"
+
+                        git push https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git ${TARGET_BRANCH}
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Pre-Production') {
+            when {
+                expression { env.BRANCH_NAME.startsWith("release/") }
+            }
+            steps {
+                echo "Deploying release branch ${env.BRANCH_NAME} to pre-production..."
+                sh '''
+                    . ${VENV_PATH}/bin/activate
+                '''
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch "main"
+            }
+            steps {
+                echo "Deploying production release from main branch..."
+                sh '''
+                    . ${VENV_PATH}/bin/activate
+                '''
+            }
+        }
+
+        stage('Hotfix Processing') {
+            when {
+                expression { env.BRANCH_NAME.startsWith("hotfix/") }
+            }
+            steps {
+                echo "Processing hotfix branch: ${env.BRANCH_NAME}..."
+                withCredentials([usernamePassword(credentialsId: env.GIT_CRED_ID, usernameVariable: 'TetianaBu', passwordVariable: 'GIT_TOKEN')]) {
+                    // Merge into main:
+                    sh '''
+                        git config user.name "ci-bot"
+                        git config user.email "ci-bot@example.com"
+                        git checkout main
+                        git pull https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git main
+                        git merge --no-ff ${BRANCH_NAME} -m "Auto-merged hotfix ${BRANCH_NAME} into main"
+                        git push https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git main
+                    '''
+                    // Merge into develop:
+                    sh '''
+                        git checkout develop
+                        git pull https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git develop
+                        git merge --no-ff ${BRANCH_NAME} -m "Auto-merged hotfix ${BRANCH_NAME} into develop"
+                        git push https://${TetianaBu}:${GIT_TOKEN}@github.com/TetianaBu/trn_jen.git develop
+                    '''
+                }
+            }
+        }
+
+        stage('Support Branch Processing') {
+            when {
+                expression { env.BRANCH_NAME.startsWith("support/") }
+            }
+            steps {
+                echo "Processing support branch: ${env.BRANCH_NAME}..."
+                // Add any long-term support specific steps here.
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Cleaning up..."
+            // Add any cleanup actions if needed.
+        }
+        failure {
+            mail to: 'team@example.com',
+                 subject: "Build Failed: ${env.JOB_NAME}",
+                 body: "Build ${env.BUILD_NUMBER} failed on branch ${env.BRANCH_NAME}. Check details at: ${env.BUILD_URL}"
+        }
+    }
+}
