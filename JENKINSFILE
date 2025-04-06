@@ -59,7 +59,7 @@ pipeline {
 
         stage('Auto Merge Bugfix Branch') {
             when {
-                expression { env.BRANCH_NAME.startsWith("bugfix") }
+                expression { env.BRANCH_NAME.startsWith("bugfix/") }
             }
             steps {
                 echo "Auto-merging bugfix branch ${env.BRANCH_NAME} into ${TARGET_BRANCH}..."
