@@ -20,9 +20,9 @@ Open Jenkins in your browser (http://localhost:8080).
 6. Set Up Jenkins Environment Variables
 In Jenkins, make sure the following environment variables are configured for use in your pipelines:
 
-DB_SERVER: The server address of your SQL Server instance
-DB_USER: The username for the database 
-DB_PASSWORD: The password for the database 
+- DB_SERVER: The server address of your SQL Server instance
+- DB_USER: The username for the database 
+- DB_PASSWORD: The password for the database 
 
 7. Get and add credentials to the git repo to be able to post. 
 
