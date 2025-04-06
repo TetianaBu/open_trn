@@ -3,11 +3,11 @@
 Prerequisites
 Before you start, ensure the following:
 
-## 1. Install Docker
+### 1. Install Docker
 
-## 2. Ensure TRN Database is set up and SQL Server is installed and running
+### 2. Ensure TRN Database is set up and SQL Server is installed and running
 
-## 3. Run Docker with provided file
+### 3. Run Docker with provided file
 ```
 docker build -t docker_jenkins .
 docker run -d -p 8080:8080 docker_jenkins
