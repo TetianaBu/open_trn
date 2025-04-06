@@ -14,7 +14,6 @@ def test_count_emails():
     finally:
         conn.close()
 
-    emails = [row[0] for row in result]
+    email_address = [row[0] for row in result]
 
-
-    assert emails[0] == 40, f"Count equals: {emails}"
+    assert email_address[0] == 40, f"Count equals: {emails}"
