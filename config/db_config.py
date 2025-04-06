@@ -4,9 +4,8 @@ import os
 def get_db_connection():
     # Get database credentials from environment variables
     server = os.getenv('DB_SERVER')    # Database server
-    uid = os.getenv('DB_UID')          # Database username
-    pwd = os.getenv('DB_PWD')          # Database password
-    db_name = os.getenv('DB_NAME')     # Database name
+    uid = os.getenv('DB_USER')          # Database username
+    pwd = os.getenv('DB_PASSWORD')          # Database password
 
     conn = pyodbc.connect(
         f'DRIVER={{ODBC Driver 17 for SQL Server}};'
@@ -15,6 +14,7 @@ def get_db_connection():
         f'UID={uid};'
         f'PWD={pwd}'
     )
+    print(conn)
     return conn
 
 get_db_connection()
